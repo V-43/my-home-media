@@ -29,13 +29,13 @@
 
     <body class="text-blue-300 bg-gray-900">
         <header class="flex justify-between items-center fixed z-10 bg-gray-900 w-full">
-            <a href="index.html" id="logo" class="ml-20 px-6 py-2 italic text-5xl">{{ config('app.name') }}</a>
+            <a href="/" id="logo" class="ml-20 px-6 py-2 italic text-5xl">{{ config('app.name') }}</a>
             <livewire:search-dropdown>
         </header>
         <div class="flex justify-between px-10 pt-20">
             <nav>
                 <ul class="text-2xl">
-                    <li class="border-b mr-4 border-solid border-gray-700"><a class="block px-4 py-3" href="#">Главная</a></li>
+                    <li class="border-b mr-4 border-solid border-gray-700"><a class="block px-4 py-3" href="/">Главная</a></li>
                     <li class="border-b mr-4 border-solid border-gray-700"><a class="block px-4 py-3" href="#">Фильмы</a></li>
                     <li class="mr-4"><a class="block px-4 py-3" href="#">Сериалы</a></li>
                 </ul>

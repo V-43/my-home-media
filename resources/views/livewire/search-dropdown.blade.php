@@ -5,7 +5,7 @@
         class="border border-gray-700 border-solid w-full text-gray-500 bg-gray-800 focus:text-black focus:bg-gray-400 focus:placeholder-black py-2 pl-3 pr-10" 
         placeholder="Поиск и добавление"
         @focus="isOpen = true"
-        @keydown="isOpen = true"
+        @click="isOpen = true"
         @keydown.prevent.arrow-down="$refs.links.firstElementChild.firstElementChild.focus()"
         @keydown.prevent.arrow-up="$refs.links.lastElementChild.firstElementChild.focus()"
         @keydown.prevent.tab="$refs.links.firstElementChild.firstElementChild.focus()"

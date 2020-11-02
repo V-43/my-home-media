@@ -13,7 +13,7 @@ class SearchDropdown extends Component
     {
         $searchResults = [];
 
-        if (strlen($this->search) >= 2) {
+        if (mb_strlen($this->search) >= 2) {
             $searchResults = $this->getSearchResults();
         }
         
