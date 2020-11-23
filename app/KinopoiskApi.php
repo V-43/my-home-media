@@ -6,7 +6,7 @@ use App\Models\Video;
 use Illuminate\Support\Facades\Http;
 
 class KinopoiskApi {
-    const TOKEN = '9301b8115343353d80d3b034576daece'; //@todo: перенести в .env
+    const TOKEN = 'a3e85f84cb97500978f4b179f7f222dc'; //@todo: перенести в .env
 
     public static function find(int $kinopoiskId):array
     {
