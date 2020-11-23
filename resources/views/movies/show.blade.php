@@ -4,7 +4,7 @@
 @section('content')
     <div class="flex mt-5">
         <div class="w-2/5">
-            <img src="{{ asset("storage/films/$video->id/poster.jpg") }}" alt="Постер">
+            <img src="{{ asset($video->dirPath().'poster.jpg') }}" alt="Постер">
         </div>
         <div class="w-3/5 ml-10">
             <div class="pb-2 border-b border-gray-500">
@@ -12,6 +12,12 @@
                 @if ($video->title_alt && $video->title)
                     <h3 class="text-lg font-bold text-gray-600 pb-1">{{ $video->title_alt }}</h3>
                 @endif
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-500">
+                <div class="w-1/6 py-1 text-gray-600 font-bold">Год:</div>
+                <p class="flex-grow py-1">
+                   <span>{{ $video->year }}</span>
+                </p>
             </div>
             <div class="flex items-center py-2 border-b border-gray-500">
                 <div class="w-1/6 py-1 text-gray-600 font-bold">Страна:</div>
@@ -66,7 +72,7 @@
             </div>
         </div>
     </div>
-    {{-- <video class="w-3/4 mx-auto" preload="metadata" controls="controls" src="videos/Miku Expo 2016 Live Concert In Toronto - Ten Thous.mp4">
+    {{-- <video class="w-3/4 mx-auto" preload="metadata" controls="controls" src="">
         
     </video> --}}
 @endsection

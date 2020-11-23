@@ -4,14 +4,18 @@
         type="text" 
         class="border border-gray-700 border-solid w-full text-gray-500 bg-gray-800 focus:text-black focus:bg-gray-400 focus:placeholder-black py-2 pl-3 pr-10" 
         placeholder="Поиск и добавление"
-        @focus="isOpen = true"
-        @click="isOpen = true"
-        @keydown.prevent.arrow-down="$refs.links.firstElementChild.firstElementChild.focus()"
-        @keydown.prevent.arrow-up="$refs.links.lastElementChild.firstElementChild.focus()"
-        @keydown.prevent.tab="$refs.links.firstElementChild.firstElementChild.focus()"
-        @keydown.prevent.shift.tab="$refs.links.lastElementChild.firstElementChild.focus()"
-        @keydown.escape.window="isOpen = false"
-        x-ref="search"
+        {{-- @if (count($searchResults) > 0) - не работает --}}
+        {{-- по-видимому, нельзя указывать условие в модели wire:model, которое зависит от этой модели --}}
+        {{-- возможное решение - переместить рендер результатов поиска на клиентскую часть --}}
+            @@focus="isOpen = true"
+            @@click="isOpen = true"
+            @@keydown.prevent.arrow-down="$refs.links.firstElementChild.nextElementSibling.firstElementChild.focus()"
+            @@keydown.prevent.arrow-up="$refs.links.lastElementChild.firstElementChild.focus()"
+            @@keydown.prevent.tab="$refs.links.firstElementChild.nextElementSibling.firstElementChild.focus()"
+            @@keydown.prevent.shift.tab="$refs.links.lastElementChild.firstElementChild.focus()"
+            @@keydown.escape.window="isOpen = false"
+            x-ref="search"
+        {{-- @endif --}}
     >
     <span class="absolute right-0 flex items-center justify-center text-gray-600 h-10 w-10 pointer-events-none">
         <svg class="h-4" aria-hidden="true" data-prefix="fas" data-icon="search" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
@@ -22,42 +26,91 @@
         class="fixed mt-16 top-0 bg-gray-900 w-2/5" 
         x-show.transition.opacity="isOpen"
     >
-        @if (count($searchResults) > 0)
-            <ul x-ref="links" @mouseover="$event.target.focus()">
-                @foreach ($searchResults as $result)
-                    <li class="border-b border-gray-700">
-                        <a 
-                            href="{{ route('movies.create', ['kinopoiskId' => $result['kinopoiskId']]) }}" 
-                            class="px-3 py-3 flex items-center justify-between focus:bg-gray-700"
-                            @if ($loop->first)
-                                @keydown.prevent.arrow-up="$refs.search.focus()"
-                            @else
-                                @keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
-                            @endif
-                            @if ($loop->last) 
-                                @keydown.tab.prevent="$refs.search.focus()" 
-                                @keydown.prevent.shift.tab="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
-                                @keydown.prevent.arrow-down="$refs.search.focus()"
-                            @else
-                                @keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
-                            @endif
-                        >
-                            <img src="https:{{ $result['poster'] }}" alt="poster" class="w-16 flex-shrink-0">
-                            <div class="mx-4 text-lg flex-grow">
-                                <p>{{ $result['russian'] ?? $result['original'] }}</p>
-                                <span class="text-xs text-gray-400">
-                                    @if ($result['russian'] && $result['original'])
-                                        {{ $result['original'] }},
+        @if (count($searchResults['kinopoisk']) > 0 || count($searchResults['hasInDb']) > 0)
+            <ul x-ref="links" @@mouseover="$event.target.focus()">
+                @if (count($searchResults['hasInDb']) > 0)
+                    <li class="text-center bg-blue-900">Просмотр</li>
+                    @foreach($searchResults['hasInDb'] as $result)
+                        <li class="border-b border-gray-700">
+                            <a 
+                                href="{{ route('movies.show', ['video' => $result['id']]) }}" 
+                                class="px-3 py-3 flex items-center justify-between focus:bg-gray-700"
+                                @if ($loop->first)
+                                    @@keydown.prevent.arrow-up="$refs.search.focus()"
+                                @else
+                                    @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
+                                @endif
+                                @if ($loop->last) 
+                                    @if (count($searchResults['kinopoisk']) > 0)
+                                        @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.nextElementSibling.firstElementChild.focus()"
+                                    @else
+                                        @@keydown.prevent.arrow-down="$refs.search.focus()"
+                                        @@keydown.tab.prevent="$refs.search.focus()"
+                                        @@keydown.prevent.shift.tab="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
                                     @endif
-                                    {{ $result['productionYear'] }}
-                                </span>
-                            </div>
-                            <span x-data="{ rating: {{ $result['rating'] }} || '—' }" x-text="rating" class="text-xl" 
-                                :class="{'text-gray-400': rating === '—' || rating >= 5 && rating < 7, 'text-green-500': rating >= 7, 'text-red-500': rating < 5}"
-                            ></span>
-                        </a>
-                    </li>
-                @endforeach
+                                @else
+                                    @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
+                                @endif
+                            >
+                                <img src="https:{{ $result['poster'] }}" alt="poster" class="w-16 flex-shrink-0">
+                                <div class="mx-4 text-lg flex-grow">
+                                    <p>{{ $result['russian'] ?? $result['original'] }}</p>
+                                    <span class="text-xs text-gray-400">
+                                        @if ($result['russian'] && $result['original'])
+                                            {{ $result['original'] }},
+                                        @endif
+                                        {{ $result['productionYear'] }}
+                                    </span>
+                                </div>
+                                <span x-data="{ rating: {{ $result['rating'] }} }" x-text="rating ? rating.toFixed(1) : '—'" class="text-xl" 
+                                    :class="{'text-gray-400': rating === 0 || rating >= 5 && rating < 7, 'text-green-500': rating >= 7, 'text-red-500': rating < 5 && rating > 0}"
+                                ></span>
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
+
+                @if (count($searchResults['kinopoisk']) > 0)
+                    <li class="text-center bg-blue-900">Добавление</li>
+                    @foreach ($searchResults['kinopoisk'] as $result)
+                        <li class="border-b border-gray-700">
+                            <a 
+                                href="{{ route('movies.create', ['kinopoiskId' => $result['kinopoiskId']]) }}" 
+                                class="px-3 py-3 flex items-center justify-between focus:bg-gray-700"
+                                @if ($loop->first)
+                                    @if (count($searchResults['hasInDb']) > 0)
+                                        @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.previousElementSibling.firstElementChild.focus()"
+                                    @else
+                                        @@keydown.prevent.arrow-up="$refs.search.focus()"
+                                    @endif
+                                @else
+                                    @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
+                                @endif
+                                @if ($loop->last) 
+                                    @@keydown.tab.prevent="$refs.search.focus()" 
+                                    @@keydown.prevent.shift.tab="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
+                                    @@keydown.prevent.arrow-down="$refs.search.focus()"
+                                @else
+                                    @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
+                                @endif
+                            >
+                                <img src="https:{{ $result['poster'] }}" alt="poster" class="w-16 flex-shrink-0">
+                                <div class="mx-4 text-lg flex-grow">
+                                    <p>{{ $result['russian'] ?? $result['original'] }}</p>
+                                    <span class="text-xs text-gray-400">
+                                        @if ($result['russian'] && $result['original'])
+                                            {{ $result['original'] }},
+                                        @endif
+                                        {{ $result['productionYear'] }}
+                                    </span>
+                                </div>
+                                <span x-data="{ rating: {{ $result['rating'] }} }" x-text="rating ? rating.toFixed(1) : '—'" class="text-xl" 
+                                    :class="{'text-gray-400': rating === 0 || rating >= 5 && rating < 7, 'text-green-500': rating >= 7, 'text-red-500': rating < 5 && rating > 0}"
+                                ></span>
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
             </ul>
         @endif
     </div>

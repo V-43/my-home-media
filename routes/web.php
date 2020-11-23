@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Genre;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MoviesController;
 
@@ -15,5 +16,5 @@ use App\Http\Controllers\MoviesController;
 */
 
 Route::get('/', [MoviesController::class, 'index'])->name('movies.index');
-Route::get('/movie/{id}', [MoviesController::class, 'show'])->name('movies.show');
+Route::get('/movie/{video}', [MoviesController::class, 'show'])->name('movies.show');
 Route::get('/movie/create/{kinopoiskId}', [MoviesController::class, 'create'])->name('movies.create');
