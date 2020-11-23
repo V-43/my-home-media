@@ -16,7 +16,6 @@ class MoviesController extends Controller
 
     public function show(Video $video)
     {
-        // dd($video->directors()->get());
         foreach($video->people as $person) {
             if ($person->pivot->role & 1) {
                 $people['directors'][] = $person;
@@ -32,7 +31,6 @@ class MoviesController extends Controller
     public function create($kinopoiskId)
     {
         $filmData = KinopoiskApi::find($kinopoiskId);
-        // \dump($filmData);
         return view('movies.create', ['filmData' => $filmData]);
     }
 }
