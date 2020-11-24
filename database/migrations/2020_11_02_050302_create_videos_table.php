@@ -20,7 +20,7 @@ class CreateVideosTable extends Migration
             $table->string('title_alt')->nullable();
             $table->year('year');
             $table->text('description');
-            $table->unsignedBigInteger('id_kinopoisk');
+            $table->unsignedBigInteger('id_kinopoisk')->unique();
         });
     }
 
