@@ -13,8 +13,8 @@ class SearchDropdown extends Component
     public function render()
     {
         $searchResults = [
-            'kinopoisk' => [],
-            'hasInDb' => []
+            'kinopoisk' => collect([]),
+            'hasInDb' => collect([])
         ];
 
         if (mb_strlen($this->search) >= 2) {

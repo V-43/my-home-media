@@ -41,8 +41,8 @@ class KinopoiskApi {
         
         if (!isset($searchResults['topResult'])) {
             return [
-                'kinopoisk' => [],
-                'hasInDb' => []
+                'kinopoisk' => collect([]),
+                'hasInDb' => collect([])
             ];
         }
 
@@ -84,9 +84,19 @@ class KinopoiskApi {
         
         $hasInDb = $hasInDb->pluck('id', 'id_kinopoisk');
         $results['hasInDb'] = $results['hasInDb']->map(function ($item) use ($hasInDb) { 
-            $item['id'] = $hasInDb[$item['kinopoiskId']]; 
+            $item['id'] = $hasInDb[$item['kinopoiskId']]; //id фильма в нашей базе
+            $item['href'] = route('movies.show', $item['id']);
             return $item;
         });
+
+        $results['kinopoisk'] = $results['kinopoisk']->map(function ($item) {
+            $item['href'] = route('movies.create', $item['kinopoiskId']);
+            return $item;
+        });
+
+        // эти две строки для сброса ключей, иначе в формате JSON может оказаться не массив, а объект, и цикл x-for не будет работать
+        $results['kinopoisk'] = $results['kinopoisk']->values(); 
+        $results['hasInDb'] = $results['hasInDb']->values();
 
         return $results;
     }

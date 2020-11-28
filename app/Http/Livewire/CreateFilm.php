@@ -102,9 +102,9 @@ class CreateFilm extends Component
 
     public function render()
     {
-        $this->foundCountries = [];
-        $this->foundDirectors = [];
-        $this->foundScreenwriters = [];
+        $this->foundCountries = collect([]);
+        $this->foundDirectors = collect([]);
+        $this->foundScreenwriters = collect([]);
 
         if (mb_strlen($this->country) >= 2) {
             $this->foundCountries = Country::where('name', 'like', "$this->country%")

@@ -18,7 +18,7 @@
         </div>
         <div class="flex py-2 border-b border-gray-500">
             <div class="w-1/5 py-1">Видеофайл:</div>
-            <input class="w-4/5 flex-grow" type="file" title="Загрузить видеофайл" wire:model="video">
+            <input class="flex-grow w-4/5" type="file" title="Загрузить видеофайл" wire:model="video">
         </div>
         <div class="flex py-2 border-b border-gray-500">
             <div class="w-1/5 py-1">Название:</div>
@@ -32,56 +32,47 @@
             <div class="w-1/5 py-1">Год:</div>
             <input class="flex-grow px-3 py-1" type="number" wire:model="year">
         </div>
+        
         <div class="flex py-2 border-b border-gray-500">
-            <div class="w-1/5 py-1 flex-shrink-0">Страна:</div>
+            <div class="flex-shrink-0 w-1/5 py-1">Страна:</div>
             <div 
-                x-data="{ isOpen: false }" 
+                x-data="{ isOpen: true, foundCountries: {{ $foundCountries->toJson() }} }" 
                 @@click.away="isOpen = false"
                 class="relative w-2/5"
             >
                 <input 
-                    class="px-3 py-1 w-full" 
+                    class="w-full px-3 py-1" 
                     type="text" 
                     @@focus="isOpen = true"
                     @@click="isOpen = true"
                     @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.firstElementChild.firstElementChild.focus()"
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild.focus()"
+                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
+                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
                     wire:keydown.enter.prevent="addCountry($event.target.value || $event.target.innerText)" 
                     wire:model="country"
                     x-ref="country"
                     title="Введите страну и нажмите Enter"
                 >
-                @if (count($foundCountries) > 0)
-                    <ul 
-                        x-ref="list" 
-                        x-show.transition.opacity="isOpen"
-                        @@mouseover="$event.target.focus()"
-                        wire:click.prevent="addCountry($event.target.innerText)"
-                        class="absolute bg-gray-900 text-blue-300 w-full z-50"
-                    >
-                        @foreach($foundCountries as $cntr)
-                            <li>
-                                <a 
-                                    href="#"                            
-                                    class="block px-3 focus:bg-gray-700"
-                                    @if($loop->first)
-                                        @@keydown.prevent.arrow-up="$refs.country.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
-                                    @endif
-                                    @if($loop->last)
-                                        @@keydown.prevent.arrow-down="$refs.country.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
-                                    @endif
-                                >
-                                    {{ $cntr }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+                <ul 
+                    x-ref="list" 
+                    x-show.transition.opacity="isOpen && foundCountries.length"
+                    @@mouseover="$event.target.focus()"
+                    wire:click.prevent="addCountry($event.target.innerText)"
+                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
+                >
+                    <template x-for="(item, index) in foundCountries">
+                        <li>
+                            <a 
+                                :data-index = "index"
+                                href="#"                            
+                                class="block px-3 focus:bg-gray-700"
+                                x-text = "item"
+                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.country) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
+                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundCountries.length - 1 && $refs.country) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
+                            ></a>
+                        </li>
+                    </template>
+                </ul>
             </div>
             <div class="pl-3" wire:click="removeCountry($event.target.dataset.index)">
                 @foreach($countries as $idx => $cntr)
@@ -93,7 +84,7 @@
         <div class="flex py-2 border-b border-gray-500">
             <div class="w-1/5 py-1">Жанры:</div>
             <select 
-                class="w-2/5 flex-grow px-3" 
+                class="flex-grow w-2/5 px-3" 
                 wire:click="setGenre($event.target.value, $event.target.selected, $event.ctrlKey)" 
                 wire:model="genres"
                 multiple
@@ -106,55 +97,45 @@
         </div>
 
         <div class="flex py-2 border-b border-gray-500 ">
-            <div class="w-1/5 py-1 flex-shrink-0">Режиссеры:</div>
+            <div class="flex-shrink-0 w-1/5 py-1">Режиссеры:</div>
             <div 
-                x-data="{ isOpen: false }" 
+                x-data="{ isOpen: true, foundDirectors: {{ $foundDirectors->toJson() }} }" 
                 @@click.away="isOpen = false"
                 class="relative w-2/5"
             >
                 <input 
-                    class="px-3 py-1 w-full" 
+                    class="w-full px-3 py-1" 
                     type="text" 
                     @@focus="isOpen = true"
                     @@click="isOpen = true"
                     @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.firstElementChild.firstElementChild.focus()"
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild.focus()"
+                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
+                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
                     wire:keydown.enter.prevent="addDirector($event.target.value || $event.target.innerText)" 
                     wire:model="director"
                     x-ref="director"
                     title="Введите режиссера и нажмите Enter"
                 >
-                @if (count($foundDirectors) > 0)
-                    <ul 
-                        x-ref="list" 
-                        x-show.transition.opacity="isOpen"
-                        @@mouseover="$event.target.focus()"
-                        wire:click.prevent="addDirector($event.target.innerText)"
-                        class="absolute bg-gray-900 text-blue-300 w-full z-50"
-                    >
-                        @foreach($foundDirectors as $dir)
-                            <li>
-                                <a 
-                                    href="#"                            
-                                    class="block px-3 focus:bg-gray-700"
-                                    @if($loop->first)
-                                        @@keydown.prevent.arrow-up="$refs.director.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
-                                    @endif
-                                    @if($loop->last)
-                                        @@keydown.prevent.arrow-down="$refs.director.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
-                                    @endif
-                                >
-                                    {{ $dir }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+                <ul 
+                    x-ref="list" 
+                    x-show.transition.opacity="isOpen && foundDirectors.length"
+                    @@mouseover="$event.target.focus()"
+                    wire:click.prevent="addDirector($event.target.innerText)"
+                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
+                >
+                    <template x-for="(item, index) in foundDirectors">
+                        <li>
+                            <a 
+                                :data-index = "index"
+                                href="#"                            
+                                class="block px-3 focus:bg-gray-700"
+                                x-text = "item"
+                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.director) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
+                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundDirectors.length - 1 && $refs.director) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
+                            ></a>
+                        </li>
+                    </template>
+                </ul>
             </div>
             <div class="pl-3" wire:click="removeDirector($event.target.dataset.index)">
                 @foreach($directors as $idx => $dir)
@@ -164,55 +145,45 @@
         </div>
 
         <div class="flex py-2 border-b border-gray-500">
-            <div class="w-1/5 py-1 flex-shrink-0">Сценаристы:</div>
+            <div class="flex-shrink-0 w-1/5 py-1">Сценаристы:</div>
             <div 
-                x-data="{ isOpen: false }" 
+                x-data="{ isOpen: true, foundScreenwriters: {{ $foundScreenwriters->toJson() }} }" 
                 @@click.away="isOpen = false"
                 class="relative w-2/5"
             >
                 <input 
-                    class="px-3 py-1 w-full" 
+                    class="w-full px-3 py-1" 
                     type="text" 
                     @@focus="isOpen = true"
                     @@click="isOpen = true"
                     @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.firstElementChild.firstElementChild.focus()"
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild.focus()"
+                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
+                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
                     wire:keydown.enter.prevent="addScreenwriter($event.target.value || $event.target.innerText)" 
                     wire:model="screenwriter"
                     x-ref="screenwriter"
                     title="Введите сценариста и нажмите Enter"
                 >
-                @if (count($foundScreenwriters) > 0)
-                    <ul 
-                        x-ref="list" 
-                        x-show.transition.opacity="isOpen"
-                        @@mouseover="$event.target.focus()"
-                        wire:click.prevent="addScreenwriter($event.target.innerText)"
-                        class="absolute bg-gray-900 text-blue-300 w-full z-50"
-                    >
-                        @foreach($foundScreenwriters as $scr)
-                            <li>
-                                <a 
-                                    href="#"                            
-                                    class="block px-3 focus:bg-gray-700"
-                                    @if($loop->first)
-                                        @@keydown.prevent.arrow-up="$refs.screenwriter.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-up="$event.target.parentElement.previousElementSibling.firstElementChild.focus()"
-                                    @endif
-                                    @if($loop->last)
-                                        @@keydown.prevent.arrow-down="$refs.screenwriter.focus()"
-                                    @else
-                                        @@keydown.prevent.arrow-down="$event.target.parentElement.nextElementSibling.firstElementChild.focus()"
-                                    @endif
-                                >
-                                    {{ $scr }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+                <ul 
+                    x-ref="list" 
+                    x-show.transition.opacity="isOpen && foundScreenwriters.length"
+                    @@mouseover="$event.target.focus()"
+                    wire:click.prevent="addScreenwriter($event.target.innerText)"
+                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
+                >
+                    <template x-for="(item, index) in foundScreenwriters">
+                        <li>
+                            <a 
+                                :data-index = "index"
+                                href="#"                            
+                                class="block px-3 focus:bg-gray-700"
+                                x-text = "item"
+                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.screenwriter) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
+                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundScreenwriters.length - 1 && $refs.screenwriter) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
+                            ></a>
+                        </li>
+                    </template>
+                </ul>
             </div>
             <div class="pl-3" wire:click="removeScreenwriter($event.target.dataset.index)">
                 @foreach($screenwriters as $idx => $scr)
