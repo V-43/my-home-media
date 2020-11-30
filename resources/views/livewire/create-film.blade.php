@@ -33,53 +33,7 @@
             <input class="flex-grow px-3 py-1" type="number" wire:model="year">
         </div>
         
-        <div class="flex py-2 border-b border-gray-500">
-            <div class="flex-shrink-0 w-1/5 py-1">Страна:</div>
-            <div 
-                x-data="{ isOpen: true, foundCountries: {{ $foundCountries->toJson() }} }" 
-                @@click.away="isOpen = false"
-                class="relative w-2/5"
-            >
-                <input 
-                    class="w-full px-3 py-1" 
-                    type="text" 
-                    @@focus="isOpen = true"
-                    @@click="isOpen = true"
-                    @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
-                    wire:keydown.enter.prevent="addCountry($event.target.value || $event.target.innerText)" 
-                    wire:model="country"
-                    x-ref="country"
-                    title="Введите страну и нажмите Enter"
-                >
-                <ul 
-                    x-ref="list" 
-                    x-show.transition.opacity="isOpen && foundCountries.length"
-                    @@mouseover="$event.target.focus()"
-                    wire:click.prevent="addCountry($event.target.innerText)"
-                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
-                >
-                    <template x-for="(item, index) in foundCountries">
-                        <li>
-                            <a 
-                                :data-index = "index"
-                                href="#"                            
-                                class="block px-3 focus:bg-gray-700"
-                                x-text = "item"
-                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.country) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
-                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundCountries.length - 1 && $refs.country) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
-                            ></a>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-            <div class="pl-3" wire:click="removeCountry($event.target.dataset.index)">
-                @foreach($countries as $idx => $cntr)
-                    <p class="cursor-pointer hover:line-through" data-index={{ $idx }}>{{ $cntr }}</p>
-                @endforeach
-            </div>
-        </div>
+        <x-smth-search-dropdown smth="country" label="Страна" :added="$countries" :found="$foundCountries"/>
 
         <div class="flex py-2 border-b border-gray-500">
             <div class="w-1/5 py-1">Жанры:</div>
@@ -96,101 +50,8 @@
             <div class="w-2/5 pl-3">{{ implode(', ', $genres) }}</div>
         </div>
 
-        <div class="flex py-2 border-b border-gray-500 ">
-            <div class="flex-shrink-0 w-1/5 py-1">Режиссеры:</div>
-            <div 
-                x-data="{ isOpen: true, foundDirectors: {{ $foundDirectors->toJson() }} }" 
-                @@click.away="isOpen = false"
-                class="relative w-2/5"
-            >
-                <input 
-                    class="w-full px-3 py-1" 
-                    type="text" 
-                    @@focus="isOpen = true"
-                    @@click="isOpen = true"
-                    @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
-                    wire:keydown.enter.prevent="addDirector($event.target.value || $event.target.innerText)" 
-                    wire:model="director"
-                    x-ref="director"
-                    title="Введите режиссера и нажмите Enter"
-                >
-                <ul 
-                    x-ref="list" 
-                    x-show.transition.opacity="isOpen && foundDirectors.length"
-                    @@mouseover="$event.target.focus()"
-                    wire:click.prevent="addDirector($event.target.innerText)"
-                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
-                >
-                    <template x-for="(item, index) in foundDirectors">
-                        <li>
-                            <a 
-                                :data-index = "index"
-                                href="#"                            
-                                class="block px-3 focus:bg-gray-700"
-                                x-text = "item"
-                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.director) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
-                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundDirectors.length - 1 && $refs.director) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
-                            ></a>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-            <div class="pl-3" wire:click="removeDirector($event.target.dataset.index)">
-                @foreach($directors as $idx => $dir)
-                    <p class="cursor-pointer hover:line-through" data-index={{ $idx }}>{{ $dir }}</p>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="flex py-2 border-b border-gray-500">
-            <div class="flex-shrink-0 w-1/5 py-1">Сценаристы:</div>
-            <div 
-                x-data="{ isOpen: true, foundScreenwriters: {{ $foundScreenwriters->toJson() }} }" 
-                @@click.away="isOpen = false"
-                class="relative w-2/5"
-            >
-                <input 
-                    class="w-full px-3 py-1" 
-                    type="text" 
-                    @@focus="isOpen = true"
-                    @@click="isOpen = true"
-                    @@keydown.escape.window="isOpen = false"
-                    @@keydown.prevent.arrow-down="$refs.list.querySelector('li>a')?.focus()" 
-                    @@keydown.prevent.arrow-up="$refs.list.lastElementChild.firstElementChild?.focus()"
-                    wire:keydown.enter.prevent="addScreenwriter($event.target.value || $event.target.innerText)" 
-                    wire:model="screenwriter"
-                    x-ref="screenwriter"
-                    title="Введите сценариста и нажмите Enter"
-                >
-                <ul 
-                    x-ref="list" 
-                    x-show.transition.opacity="isOpen && foundScreenwriters.length"
-                    @@mouseover="$event.target.focus()"
-                    wire:click.prevent="addScreenwriter($event.target.innerText)"
-                    class="absolute z-50 w-full text-blue-300 bg-gray-900"
-                >
-                    <template x-for="(item, index) in foundScreenwriters">
-                        <li>
-                            <a 
-                                :data-index = "index"
-                                href="#"                            
-                                class="block px-3 focus:bg-gray-700"
-                                x-text = "item"
-                                @@keydown.arrow-up.prevent="(($event.target.dataset.index == 0 && $refs.screenwriter) || $event.target.parentElement.previousElementSibling.firstElementChild).focus()"
-                                @@keydown.arrow-down.prevent="(($event.target.dataset.index == foundScreenwriters.length - 1 && $refs.screenwriter) || $event.target.parentElement.nextElementSibling.firstElementChild).focus()"
-                            ></a>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-            <div class="pl-3" wire:click="removeScreenwriter($event.target.dataset.index)">
-                @foreach($screenwriters as $idx => $scr)
-                    <p class="cursor-pointer hover:line-through" data-index={{ $idx }}>{{ $scr }}</p>
-                @endforeach
-            </div>
-        </div>
+        <x-smth-search-dropdown smth="director" label="Режиссеры" :added="$directors" :found="$foundDirectors"/>
+        <x-smth-search-dropdown smth="screenwriter" label="Сценаристы" :added="$screenwriters" :found="$foundScreenwriters"/>
 
         <div class="flex py-2">
             <div class="w-1/5 py-1">Описание:</div>
